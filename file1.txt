@@ -44,4 +44,8 @@ Click Pull Request.
 Click Create Pull Request to request merge into original repository
 
 
+<<<<<<< HEAD
 hi hello.....
+=======
+help me please..........!
+>>>>>>> feature1

@@ -1,2 +1,171 @@
 C:\Users\smith\OneDrive\Desktop\demo>mvn archetype:generate -DgroupId=com.example -DartifactId=demo -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 [INFO] Scanning for projects...
+
+Step 1: Install Required Tools
+1. Install Java (JDK 11+)
+Download from:
+Oracle JDK OR OpenJDK
+Set Environment Variables:
+JAVA_HOME = C:\Program Files\Java\jdk-XX
+PATH → add %JAVA_HOME%\bin
+2. Install Apache Maven
+Download from: Apache Maven
+Extract and set:
+MAVEN_HOME = C:\apache-maven
+PATH → add %MAVEN_HOME%\bin
+3. Install VS Code
+Install: Visual Studio Code
+
+Install Extensions:
+
+Extension Pack for Java
+Maven for Java
+Debugger for Java
+🔹 Step 2: Create Maven Project
+Open VS Code
+Press Ctrl + Shift + P
+Type → Java: Create Java Project
+Select → Maven Archetype
+
+Choose:
+
+maven-archetype-quickstart
+
+Enter:
+
+Group Id → com.example
+Artifact Id → demo
+Select folder → Project created ✅
+🔹 Step 3: Push Project to GitHub
+Initialize git:
+git init
+git add .
+git commit -m "Initial commit"
+Create repo in GitHub
+Push:
+git remote add origin <repo-link>
+git branch -M main
+git push -u origin main
+🔹 Step 4: Create CI/CD Pipeline (GitHub Actions)
+Folder Structure:
+demo/
+.github/
+   workflows/
+       maven.yml
+Create maven.yml
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Build using Maven
+        run: mvn clean install
+        working-directory: demo
+🔹 Step 5: Verify CI/CD
+Go to GitHub → Actions tab
+You’ll see build running ✅
+✅ C2: Jenkins Integration + Notifications
+🔹 Step 1: Install Required Plugins in Jenkins
+
+Install in Jenkins:
+
+Git Plugin
+Pipeline Plugin
+Maven Integration Plugin
+🔹 Step 2: Create Jenkinsfile
+
+Create file in project root:
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven3'
+    }
+
+    stages {
+        stage('CHECKOUT') {
+            steps {
+                git 'your_github_repo_link'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('demo') {
+                    bat 'mvn clean install'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('demo') {
+                    bat 'mvn test'
+                }
+            }
+        }
+    }
+}
+
+Push to GitHub ✅
+
+🔹 Step 3: Configure Maven in Jenkins
+
+Go to:
+
+Manage Jenkins → Tools
+
+Maven Installation:
+
+Name → Maven3
+Uncheck auto-install
+Path → C:\Program Files\maven
+Save
+🔹 Step 4: Run Build
+Click Build Now
+Check console output ✅
+🔔 Slack Notification Setup
+🔹 Step 1: Create Slack Workspace
+Go to Slack
+Create workspace (example: hello-odm9638)
+🔹 Step 2: Generate Token
+Open:
+https://my.slack.com/services/new/jenkins-ci
+Copy token
+🔹 Step 3: Configure Slack in Jenkins
+Go to:
+Manage Jenkins → Configure System
+Slack Section:
+Workspace → hello-odm9638
+Credential → Secret Text
+Secret → (paste token)
+ID → slack-token
+Channel → #general (or your channel)
+🔹 Step 4: Enable Notification in Job
+Create → Freestyle Project
+Build Step:
+echo Jenkins
+Post-build Action:
+Select Slack Notification
+Enable all options ✅
+🔹 Step 5: Save & Build
+Click Build Now
+Notification will appear in Slack 🎉
+✅ FINAL FLOW (Easy to Remember)
+
+👉 Maven Project → GitHub → GitHub Actions (CI/CD)
+👉 Jenkins → Build + Test → Slack Notification

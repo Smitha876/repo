@@ -1,51 +1,232 @@
-Step1: Create Repository in GitHub
-Open GitHub.
-Click New Repository.
-Enter repository name: git-demo
-Step 2: Clone Repository to Local System
-Open terminal and run:
-git clone https://github.com/username/git-demo.git
-cd git-demo
-Step 3: Create a file and Write the content
-Hello GitHub
-Step 4: Commit and Push
-git add file1.txt
+PART 1: Install Docker Desktop
+Step 1: Download & Install
+Go to: Docker Desktop
+Download for Windows
+Install → Restart system if required
+Step 2: Start Docker
+Open Docker Desktop
+Wait until it says “Docker is running”
+Step 3: Verify Installation
+
+Open Command Prompt:
+
+docker --version
+
+✅ If version shows → Docker is ready
+
+🐍 PART 2: Create Local Python App
+Step 1: Create Folder
+mkdir myapp
+cd myapp
+Step 2: Create Python File → app.py
+print("Hello from Docker!")
+📦 PART 3: Create Dockerfile
+
+Inside myapp folder → create file named:
+
+👉 Dockerfile (NO .txt)
+
+Add:
+
+FROM python:3.10
+WORKDIR /app
+COPY . .
+CMD ["python","app.py"]
+🏗️ PART 4: Build Docker Image
+
+Run in terminal:
+
+docker build -t myapp .
+
+👉 Explanation:
+
+-t myapp → image name
+. → current folder
+🔍 PART 5: Verify Image
+docker images
+
+✅ You should see:
+
+myapp   latest
+▶️ PART 6: Run Container
+docker run myapp
+
+✅ Output:
+
+Hello from Docker!
+☁️ PART 7: Push Image to Docker Hub
+Step 1: Create Account
+
+Go to: Docker Hub
+
+Step 2: Login from Terminal
+docker login
+Step 3: Tag Image
+docker tag myapp yourusername/myapp:v1
+Step 4: Push Image
+docker push yourusername/myapp:v1
+
+✅ Now your image is online
+
+🐙 PART 8: Push Code to GitHub
+
+Go to: GitHub
+
+Commands:
+git init
+git add .
 git commit -m "Initial commit"
-git push origin main
-Step 5: Create and Switch to Branch
-git branch feature1
-git checkout feature1
-Step 6: Modify File in Feature Branch
-Open file1.txt and add a line
-Now Commit changes
-git add file1.txt
-git commit -m "Feature branch update"
-git push origin feature1
-DevOps Lab Cheat Sheet
-Prof. Akshatha M, VVCE
-Step 7: Show Difference Between Branches
-git diff main feature1
-Step 8: Create Merge Conflict
-git checkout main
-Open file1.txt and add another line
-git add file1.txt
-git commit -m "Main branch change"
-git merge feature1
-Step 9: Resolve Conflict
-Open file1.txt and add another line
-git add file1.txt
-git commit -m "Merge conflict resolved"
-git push origin main
-Step 10: Fork and Create Pull Request
-Open repository in GitHub.
-Click Fork.
-Modify the file in forked repository.
-Click Pull Request.
-Click Create Pull Request to request merge into original repository
 
+git remote add origin https://github.com/yourusername/docker_demo.git
+git push -u origin main
+⚙️ PART 9: Setup Jenkins
 
-<<<<<<< HEAD
-hi hello.....
-=======
-help me please..........!
->>>>>>> feature1
+Open: Jenkins
+👉 URL: http://localhost:8080
+
+Step 1: Install Plugins
+
+Go to:
+
+Manage Jenkins → Plugins
+
+Install:
+
+Git Plugin
+Docker Pipeline Plugin
+Step 2: Add Docker Hub Credentials
+
+Go to:
+
+Manage Jenkins → Credentials
+
+Add:
+
+Kind: Username & Password
+ID: dockerhub-creds
+Username: your Docker Hub username
+Password: Access Token
+🔐 How to Get Docker Token
+
+Go to Docker Hub:
+
+Profile → Account Settings → Security → Access Tokens
+
+Create token
+
+Then test:
+
+echo YOUR_TOKEN | docker login -u yourusername --password-stdin
+📜 PART 10: Create Jenkins Pipeline Job
+Step 1: New Job
+Click New Item
+Select Pipeline
+Step 2: Configure
+
+In Pipeline section:
+
+Choose: Pipeline script from SCM
+SCM → Git
+Repo URL → your GitHub repo
+Script Path → Jenkinsfile
+🧾 PART 11: Create Jenkinsfile
+
+Inside your project folder create Jenkinsfile:
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/yourusername/docker_demo.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t myapp .'
+            }
+        }
+
+        stage('Tag Image') {
+            steps {
+                sh 'docker tag myapp yourusername/myapp:v1'
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u $USER --password-stdin'
+                    sh 'docker push yourusername/myapp:v1'
+                }
+            }
+        }
+    }
+}
+▶️ PART 12: Run Jenkins Build
+Click Build Now
+Check Console Output
+
+✅ If success → CI/CD working 🎉
+
+🔁 PART 13: Automate Using Webhook
+Step 1: Install ngrok
+
+Use: ngrok
+
+Run:
+
+ngrok http 8080
+
+👉 Copy HTTPS URL
+
+Step 2: Add Webhook in GitHub
+
+Go to repo:
+
+Settings → Webhooks → Add Webhook
+Payload URL:
+https://your-ngrok-url/github-webhook/
+Content type:
+application/json
+Step 3: Enable Jenkins Trigger
+
+In Jenkins job:
+✔ Enable:
+
+GitHub hook trigger for GITScm polling
+Step 4: Push Code Again
+git add .
+git commit -m "trigger build"
+git push
+
+✅ Jenkins will automatically start build
+
+🚨 Common Errors (VERY IMPORTANT)
+❌ Docker not running
+
+✔ Open Docker Desktop
+
+❌ Jenkins not detecting GitHub
+
+✔ Check webhook URL
+✔ Keep ngrok running
+
+❌ Permission issue
+
+✔ Run terminal as Administrator
+
+❌ PowerShell error (your previous issue)
+
+Fix by switching shell:
+
+sh → bat
+
+Example:
+
+bat 'docker build -t myapp .'
+🎯 Final Flow (Remember This)
+Code → GitHub → Jenkins → Build Docker Image → Push to Docker Hub
